@@ -9,11 +9,15 @@ class App extends Component {
       allCards: {},
     }
   };
+  constructor (props){
+    super(props)
+    this.state={store:props.store}
+  }
+
   onDeleteClick = (listKey='not assigned',cardKey='not assigned') => {
-    console.log(this.state)
-    this.setState(
-      this.props.store.lists.find(list=>list.id===listKey).cardIds=this.props.store.lists.find(list=>list.id===listKey).cardIds.filter(card=>card!==cardKey)
-    )
+    const newStore = this.state.store;
+    newStore.lists[listKey-1].cardIds=newStore.lists[listKey-1].cardIds.filter(card=>card!==cardKey)
+    this.setState({store:newStore})
   }
   onNewRandomCard = (listKey) =>{
     const newRandomCard = () => {
@@ -25,15 +29,16 @@ class App extends Component {
         content: 'lorem ipsum',
       }
     }
-    this.setState(
-      ()=>{let createdCard=newRandomCard()
-      this.props.store.allCards[createdCard.id]=createdCard
-console.log(this.props.store.allCards)
-console.log('clicked',createdCard.id)
-
-      this.props.store.lists.find(list=>list.id===listKey).cardIds=[...this.props.store.lists.find(list=>list.id===listKey).cardIds,createdCard.id]
-console.log(this.props.store.lists.find(list=>list.id===listKey).cardIds)
-      })
+    //Creating instance of a new card
+    const createdCard=newRandomCard();
+    //Create a copy of the store to work with (no direct manipulation)
+    const newStore = this.state.store;
+    //Add the newly created card (in it's entirety) to the list of cards to pull from (ie-'allCards')
+    newStore.allCards[createdCard.id]=createdCard
+    //Add the id of the  newly created card to the array of cards to be renered within that specific list
+    newStore.lists.find(list=>list.id===listKey).cardIds=[...newStore.lists.find(list=>list.id===listKey).cardIds,createdCard.id]
+    //Set the state (store) to the copied and edited store object
+    this.setState({store:newStore})
   }
   render() {
     const { store } = this.props
